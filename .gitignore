@@ -9,6 +9,9 @@
 *.db-shm
 *.db-wal
 
+# Design documents and internal notes are kept out of the repository.
+/docs/
+
 # Go
 vendor/
 *.test

@@ -95,7 +95,8 @@ if parts[0] == "2":     return "END Your balance is GHS 1,000"
 `text` accumulates everything typed so far (`"1*0241234567*250"`), so your
 application stays **stateless** — no session storage of your own.
 
-Full details, and examples in Node, PHP and Python: **[docs/protocol.md](docs/protocol.md)**.
+A worked Go application, with tests, is in `examples/simple-bank/` — it
+imports nothing from USSD Lab, which is checked by a test.
 
 ---
 
@@ -229,16 +230,16 @@ go list -f '{{join .Deps "\n"}}' ./internal/session  | grep net/http   # empty
 That is what will let real provider adapters slot in later without rewriting
 the core — the simulator is simply the first transport.
 
-Design decisions are recorded in **[docs/adr/](docs/adr/)**:
+The decisions behind that shape:
 
-| ADR | Decision |
+| # | Decision |
 |---|---|
-| [001](docs/adr/001-modular-monolith.md) | Modular monolith, boundaries enforced by the import graph |
-| [002](docs/adr/002-normalized-ussd-protocol.md) | Normalized protocol and input accumulation |
-| [003](docs/adr/003-session-storage.md) | Two stores behind one interface, validated by a shared suite |
-| [004](docs/adr/004-local-networking-and-qr-tokens.md) | LAN binding, interface scoring, QR attach tokens |
-| [005](docs/adr/005-deferring-the-provider-adapter-interface.md) | Build the adapter seam, defer the interface |
-| [006](docs/adr/006-session-history.md) | History derived from the event log |
+| 1 | Modular monolith, boundaries enforced by the import graph |
+| 2 | Normalized protocol; input accumulates as `1*0241234567*250` |
+| 3 | Two session stores behind one interface, validated by a shared conformance suite |
+| 4 | Bind `0.0.0.0`, score interfaces rather than first-match, QR carries an attach token |
+| 5 | Build the provider-adapter seam, defer the interface until a real provider exists |
+| 6 | Session history derived from the event log, not stored separately |
 
 ---
 
@@ -268,16 +269,22 @@ log records what the user typed, because that is what makes the debugger
 useful — and USSD Lab cannot tell a PIN from a menu choice. History files are
 created `0600` and `.ussd/` is in `.gitignore`, but the default is unredacted.
 
-A full review, including two open findings, is in
-**[docs/security-review.md](docs/security-review.md)**.
+Two findings are known and open: the attach token's lifetime does not slide
+with an active session, so a run past an hour starts rejecting the attached
+phone; and there is no rate limiting.
 
 ---
 
 ## Status
 
-MVP. All 18 acceptance criteria pass — see
-**[docs/acceptance.md](docs/acceptance.md)**, which also records what was
-verified by measurement and what was not.
+MVP. All 18 acceptance criteria from the design document pass.
+
+Three of them are verified structurally rather than physically, and should not
+be read as stronger than they are: the QR encodes the correct LAN address but
+was never scanned with a real handset; the browser UI's server-side contract is
+tested but it was never driven in a real browser; and offline operation is
+verified by asserting no asset references an external host, not by running on an
+air-gapped machine.
 
 Not built yet, by design: provider adapters, cloud tunnels, dashboards,
 accounts, rate limiting.
