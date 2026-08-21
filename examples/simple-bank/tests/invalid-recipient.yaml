@@ -1,0 +1,9 @@
+name: Invalid Recipient
+
+steps:
+  - input: "1"
+  - input: "abc"
+
+assertions:
+  - type: END
+    contains: "does not look like a phone number"

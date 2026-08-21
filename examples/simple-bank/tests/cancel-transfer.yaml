@@ -1,0 +1,12 @@
+name: Cancel Transfer
+
+steps:
+  - input: "1"
+  - input: "0241234567"
+  - input: "100"
+  - input: "2"
+
+assertions:
+  - type: END
+    contains: "Transaction cancelled."
+    not_contains: "successful"

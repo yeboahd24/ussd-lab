@@ -1,0 +1,9 @@
+name: Main Menu
+
+# No steps: this asserts on the very first screen, which is what the user sees
+# immediately after dialling.
+assertions:
+  - type: CON
+    status: ACTIVE
+    contains: "Welcome to MyBank"
+    matches: "1\\. Send Money"

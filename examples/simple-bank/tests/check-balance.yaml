@@ -1,0 +1,9 @@
+name: Check Balance
+
+steps:
+  - input: "2"
+
+assertions:
+  - type: END
+    matches: "GHS [0-9,]+"
+    status: COMPLETED

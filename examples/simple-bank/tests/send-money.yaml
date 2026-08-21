@@ -1,0 +1,24 @@
+name: Send Money
+
+dial: "*124#"
+
+steps:
+  - input: "1"
+    expect:
+      - contains: "Enter recipient number:"
+
+  - input: "0241234567"
+    expect:
+      - contains: "Enter amount:"
+
+  - input: "250"
+    expect:
+      - type: CON
+      - contains: "Send GHS 250 to 0241234567?"
+
+  - input: "1"
+
+assertions:
+  - type: END
+    contains: "Transaction successful."
+    status: COMPLETED
