@@ -75,11 +75,11 @@ jobs:
           cd dist
           for f in ussd-*; do
             if [[ "$f" == *windows* ]]; then
-              mv "$f" "ussd-$f.exe"
-              zip "ussd-$f.zip" "ussd-$f.exe"
+              mv "$f" "$f.exe"
+              zip "$f.zip" "$f.exe"
             else
               chmod +x "$f"
-              tar -czf "ussd-$f.tar.gz" "$f"
+              tar -czf "$f.tar.gz" "$f"
             fi
           done
           ls -la
