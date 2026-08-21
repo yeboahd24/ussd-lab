@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- No external fonts, scripts or styles anywhere in this UI: the phone is
+     expected to be in airplane mode with Wi-Fi on (MVP design §9), so any
+     request off the LAN would hang. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>USSD Lab</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="bar">
+  <span class="brand">USSD Lab</span>
+  <span class="project" id="project"></span>
+</header>
+
+<main class="stage">
+
+  <!-- Dialer -->
+  <section class="card" id="view-dialer">
+    <p class="label">Enter a service code</p>
+    <input class="dial-input" id="service-code" type="text" inputmode="tel"
+           autocomplete="off" autocapitalize="off" spellcheck="false"
+           placeholder="*124#" aria-label="Service code">
+    <button class="btn btn-primary" id="btn-dial">Call</button>
+    <p class="hint" id="dial-hint"></p>
+  </section>
+
+  <!-- USSD dialog -->
+  <section class="card" id="view-session" hidden>
+    <p class="screen" id="screen"></p>
+
+    <div id="reply-area">
+      <input class="reply-input" id="reply" type="text"
+             autocomplete="off" autocapitalize="off" spellcheck="false"
+             aria-label="Your reply">
+      <div class="row">
+        <button class="btn btn-ghost" id="btn-cancel">Cancel</button>
+        <button class="btn btn-primary" id="btn-send">Send</button>
+      </div>
+    </div>
+
+    <div id="end-area" hidden>
+      <button class="btn btn-primary" id="btn-new">New session</button>
+    </div>
+  </section>
+
+  <!-- Error -->
+  <section class="card card-error" id="view-error" hidden>
+    <p class="err-code" id="err-code"></p>
+    <p class="err-message" id="err-message"></p>
+    <p class="err-hint" id="err-hint"></p>
+    <button class="btn btn-primary" id="btn-dismiss">Dismiss</button>
+  </section>
+
+</main>
+
+<footer class="status" id="status" hidden>
+  <span class="dot" id="status-dot"></span>
+  <span id="status-text"></span>
+  <span class="sid" id="status-sid"></span>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>

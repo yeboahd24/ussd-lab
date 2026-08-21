@@ -1,0 +1,237 @@
+/* USSD Lab simulator UI.
+ *
+ * Deliberately plain. MVP design §6 asks for functional correctness rather
+ * than a pixel-accurate reproduction of native USSD chrome, so this leans on
+ * the platform: system fonts, system colour scheme, large touch targets.
+ */
+
+:root {
+  --bg:        #f2f2f7;
+  --surface:   #ffffff;
+  --text:      #1c1c1e;
+  --muted:     #6c6c70;
+  --line:      #d8d8dc;
+  --accent:    #0a68ff;
+  --accent-fg: #ffffff;
+  --danger:    #b3261e;
+  --danger-bg: #fdecea;
+  --ok:        #1a7f37;
+  --radius:    14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:        #000000;
+    --surface:   #1c1c1e;
+    --text:      #f2f2f7;
+    --muted:     #98989f;
+    --line:      #3a3a3c;
+    --accent:    #4b93ff;
+    --accent-fg: #04122b;
+    --danger:    #ff6b61;
+    --danger-bg: #2c1512;
+    --ok:        #4ad264;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Header ------------------------------------------------------------- */
+
+.bar {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.project {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Stage -------------------------------------------------------------- */
+
+.stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+}
+
+.card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card-error {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.label {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* The USSD screen. pre-wrap preserves the newlines that make a menu a menu. */
+.screen {
+  margin: 0 0 18px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 17px;
+  min-height: 3em;
+}
+
+/* Inputs ------------------------------------------------------------- */
+
+.dial-input,
+.reply-input {
+  width: 100%;
+  padding: 13px 14px;
+  font-size: 17px;           /* >=16px stops iOS zooming on focus */
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.dial-input {
+  text-align: center;
+  letter-spacing: 0.08em;
+}
+
+.dial-input:focus,
+.reply-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Buttons ------------------------------------------------------------ */
+
+.btn {
+  width: 100%;
+  min-height: 48px;          /* comfortable touch target */
+  padding: 12px 16px;
+  font-size: 16px;
+  font-family: inherit;
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.hint {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  min-height: 1.2em;
+}
+
+/* Errors ------------------------------------------------------------- */
+
+.err-code {
+  margin: 0 0 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--danger);
+}
+
+.err-message {
+  margin: 0 0 8px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.err-hint {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.err-hint:empty { display: none; }
+
+/* Status bar --------------------------------------------------------- */
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex: none;
+}
+
+.dot[data-status="ACTIVE"]    { background: var(--ok); }
+.dot[data-status="COMPLETED"] { background: var(--accent); }
+.dot[data-status="ERROR"]     { background: var(--danger); }
+.dot[data-status="TIMEOUT"]   { background: var(--danger); }
+
+.sid {
+  margin-left: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
