@@ -21,6 +21,38 @@ involved.
 
 ---
 
+## Installation
+
+**One-line install** (Linux, macOS, Windows):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yeboahd24/ussd-lab/main/scripts/install.sh | sh
+```
+
+This downloads the latest release binary for your platform to `~/.local/bin`.
+Set `USSD_VERSION` to install a specific version, or `USSD_INSTALL_DIR` to
+change the install location.
+
+**Prebuilt binaries** — grab the archive for your OS/arch from the
+[Releases](https://github.com/yeboahd24/ussd-lab/releases) page, extract it,
+and put `ussd` on your PATH.
+
+**Go users** — no clone needed:
+
+```bash
+go install github.com/yeboahd24/ussd-lab/cmd/ussd@latest
+```
+
+**From source:**
+
+```bash
+git clone git@github.com:yeboahd24/ussd-lab.git
+cd ussd-lab
+make build
+```
+
+---
+
 ## Quickstart
 
 ```bash
