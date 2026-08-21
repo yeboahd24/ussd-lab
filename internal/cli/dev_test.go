@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -293,6 +294,12 @@ func TestRunDev_StartsAndStops(t *testing.T) {
 	}))
 	defer devApp.Close()
 
+	// A free port must be chosen explicitly. Writing "port: 0" does not work:
+	// config defaulting turns 0 into DefaultPort, so the test would bind the
+	// real 7345 and fail whenever anything else holds it -- including a
+	// developer running `ussd dev` while the suite runs.
+	port := freePort(t)
+
 	dir := t.TempDir()
 	cfg := fmt.Sprintf(`project: testproj
 application:
@@ -301,8 +308,8 @@ ussd:
   service_code: "*124#"
   session_timeout: 60
 simulator:
-  port: 0
-`, devApp.URL)
+  port: %d
+`, devApp.URL, port)
 
 	path := filepath.Join(dir, "ussd.yaml")
 	if err := os.WriteFile(path, []byte(cfg), 0o644); err != nil {
@@ -316,8 +323,12 @@ simulator:
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan error, 1)
 	go func() {
-		done <- runDev(ctx, env, global,
-			&devFlags{host: "127.0.0.1", store: "memory", noQR: true})
+		done <- runDev(ctx, env, global, &devFlags{
+			host: "127.0.0.1", store: "memory", noQR: true,
+			// Without this the test writes .ussd/history.db into whatever
+			// directory the suite happens to run in.
+			noHistory: true,
+		})
 	}()
 
 	// Wait for the dashboard, then request shutdown.
@@ -350,6 +361,23 @@ simulator:
 			t.Errorf("output missing %q\n%s", want, got)
 		}
 	}
+}
+
+// freePort reserves an ephemeral port and releases it. There is a small race
+// between release and rebind, which is acceptable in a test and unavoidable
+// without threading a listener through runDev.
+func freePort(t *testing.T) int {
+	t.Helper()
+
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("reserve a port: %v", err)
+	}
+	port := ln.Addr().(*net.TCPAddr).Port
+	if err := ln.Close(); err != nil {
+		t.Fatalf("release the port: %v", err)
+	}
+	return port
 }
 
 func TestRunDev_MissingConfig(t *testing.T) {
