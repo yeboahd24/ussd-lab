@@ -1,0 +1,20 @@
+# Binaries
+/ussd
+/dist/
+*.exe
+
+# Local state
+.ussd/
+*.db
+*.db-shm
+*.db-wal
+
+# Go
+vendor/
+*.test
+coverage.out
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
